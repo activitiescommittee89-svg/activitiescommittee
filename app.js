@@ -1191,7 +1191,7 @@ if (saveBtnEl)
       }
 
       await batch.commit();
-      alert("✅تم الحفظ بنجاح ة");
+      alert("✅تم الحفظ بنجاح ");
     } catch (e) {
       console.error("Save error:", e);
       alert("⚠️ حدث خطأ أثناء الحفظ");
@@ -1415,4 +1415,5 @@ window.addEventListener("load", async () => {
     console.error("Error auto-loading data:", e);
   }
 });
+
 
