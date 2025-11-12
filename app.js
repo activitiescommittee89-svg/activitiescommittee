@@ -550,7 +550,6 @@ function showGroupDetails(gi) {
   scrollToElement("groupDetails");
 }
 
-e;
 async function endGroupMatch(matchId) {
   const m = STATE.groupMatches.find((x) => x.id === matchId);
   if (!m) return alert("مباراة غير موجودة");
@@ -1416,3 +1415,4 @@ window.addEventListener("load", async () => {
     console.error("Error auto-loading data:", e);
   }
 });
+
