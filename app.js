@@ -1416,4 +1416,13 @@ window.addEventListener("load", async () => {
   }
 });
 
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    appContainer.classList.add("hidden");
+    loginWrap.classList.remove("hidden");
+    CURRENT_ROLE = null;
+  });
+}
+
 
