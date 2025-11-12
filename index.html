@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>لجنه الانشطه و المسبقات - نظام دوري ومسابقة</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      /* ستايل اللوجو اللي في الخلفية بس */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 800px;
+        height: 800px;
+        background: url("logo.png") no-repeat center center;
+        background-size: contain;
+        opacity: 0.12;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="loginWrap" class="login-wrap">
+      <div class="login-card" role="dialog" aria-labelledby="loginTitle">
+        <div class="login-head">
+          <img
+            src="logo.png"
+            alt="لجنة الأنشطة والمسابقات"
+            class="login-logo"
+            style="width: 64px; height: 64px; border-radius: 12px"
+          />
+
+          <div>
+            <div id="loginTitle" class="login-title">
+              دخول لوحة إدارة و عرض — لجنه الانشطه و المسبقات
+            </div>
+            <div class="login-sub">
+              اختر دورك. المشاهد يرى الداشبورد فقط. لجنة التنظيم تحتاج كلمة سر
+              للوصول الكامل.
+            </div>
+          </div>
+        </div>
+
+        <div class="login-body">
+          <div class="login-column">
+            <label style="font-weight: 700; margin-bottom: 8px; display: block"
+              >دخول كمشاهد</label
+            >
+            <button id="btnViewer" class="role-btn role-view">
+              مشاهد — عرض الداشبورد فقط
+            </button>
+            <div style="margin-top: 10px; color: var(--muted); font-size: 13px">
+              المشاهد لن يستطيع تعديل أو الوصول لأدوات التحكم.
+            </div>
+          </div>
+
+          <div class="login-column">
+            <label style="font-weight: 700; margin-bottom: 8px; display: block"
+              >دخول كلجنة التنظيم</label
+            >
+            <button id="btnAdminShow" class="role-btn role-admin">
+              لجنة التنظيم — أطلب كلمة السر
+            </button>
+            <div class="pass-row" id="passRow" style="display: none">
+              <input
+                id="adminPass"
+                class="pass-input"
+                type="password"
+                placeholder="أدخل كلمة المرور"
+              />
+              <button id="btnAdmin" class="pass-submit">دخول</button>
+            </div>
+            <div style="margin-top: 10px; color: var(--muted); font-size: 13px">
+              كلمة المرور المطلوبة: <strong>123</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="appContainer" class="hidden">
+      <div class="topnav">
+        <div class="brand">
+          <img
+            src="logo.png"
+            alt="لجنة الأنشطة والمسابقات"
+            class="main-logo"
+            style="width: 42px; height: 42px; border-radius: 10px"
+          />
+
+          <div>
+            <div class="sitename">لجنه الانشطه و المسبقات</div>
+            <div class="small muted" style="font-size: 12px">
+              نظام دوري + كأس — متجاوب وذكي
+            </div>
+          </div>
+        </div>
+
+        <div class="navtabs" role="tablist" aria-label="الصفحات">
+          <button class="tabbtn active" data-tab="tab-groups">
+            🏁 تقسيم المجموعات
+          </button>
+          <button class="tabbtn" data-tab="tab-bracket">🌳 شجرة الكأس</button>
+          <button class="tabbtn" data-tab="tab-dashboard">📊 الداشبورد</button>
+        </div>
+
+        <div class="actions">
+          <button id="saveBtn" class="ghost">💾 حفظ</button>
+          <button id="loadBtn" class="ghost">📂 استرجاع</button>
+          <button id="resetBtn" class="ghost danger">🔁 إعادة تعيين</button>
+        </div>
+      </div>
+
+      <div class="wrap">
+        <div id="tab-groups" class="tabcontent active">
+          <div class="card">
+            <div class="row">
+              <div class="col">
+                <label>عدد الفرق (كلي)</label>
+                <input id="inputTotal" type="number" min="2" value="16" />
+                <div class="small muted">مثال: 8, 12, 16, 20</div>
+              </div>
+              <div class="col">
+                <label>فرق بكل مجموعة (اختياري)</label>
+                <input
+                  id="inputPerGroup"
+                  type="number"
+                  min="2"
+                  placeholder="اتركه ليُحسب تلقائياً"
+                />
+                <div class="small muted">
+                  لو فاضي سيقسم تلقائياً بشكل متقارب
+                </div>
+              </div>
+              <div
+                class="col"
+                style="display: flex; align-items: flex-end; gap: 8px"
+              >
+                <button id="btnCreate" class="primary">إنشاء المجموعات</button>
+                <button id="btnDemo" class="ghost">ملأ تجريبي</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="teamsInputCard" class="card" style="display: none">
+            <label>أدخل أسماء الفرق (سطر لكل فريق)</label>
+            <textarea id="teamsText" placeholder="مثال: الاهلي"></textarea>
+            <div style="text-align: left; margin-top: 8px">
+              <button id="btnAutoAssign" class="primary">توزيع تلقائي</button>
+              <button id="btnManualAssign" class="ghost">توزيع يدوي</button>
+              <span class="saved-note" id="assignNote"></span>
+            </div>
+          </div>
+
+          <div id="groupsOverview" class="card" style="display: none">
+            <label>المجموعات</label>
+            <div class="groups-list" id="groupsList"></div>
+            <div class="small muted">
+              اضغط اسم المجموعة لعرض تفاصيلها أسفلاً.
+            </div>
+          </div>
+
+          <div id="groupDetails" class="card" style="display: none">
+            <div class="row">
+              <div class="col">
+                <h3 id="groupTitle">المجموعة A</h3>
+                <div class="small muted" id="groupTeamsLine"></div>
+                <div class="matches-list" id="groupMatches"></div>
+              </div>
+              <div class="col">
+                <h3>ترتيب المجموعة</h3>
+                <table id="groupTable">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>فريق</th>
+                      <th>لعب</th>
+                      <th>ف</th>
+                      <th>ت</th>
+                      <th>خ</th>
+                      <th>له</th>
+                      <th>عليه</th>
+                      <th>فرق</th>
+                      <th>نقاط</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+                <div style="margin-top: 8px">
+                  <button id="btnToBracketFromGroup" class="primary">
+                    إضافة متأهلين للشجرة النهائية
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-bracket" class="tabcontent">
+          <div class="card">
+            <h3 class="center">الشجرة النهائية — نظام خروج مباشر (كلاسيكي)</h3>
+            <div style="display: flex; gap: 8px; justify-content: center">
+              <label style="align-self: center">المتأهلين من كل مجموعة :</label>
+              <select id="qualifyCount">
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
+              <button id="btnBuildBracket" class="primary">بناء الشجرة</button>
+            </div>
+
+            <div
+              id="bracketArea"
+              class="bracket"
+              style="margin-top: 12px"
+            ></div>
+          </div>
+        </div>
+
+        <div id="tab-dashboard" class="tabcontent">
+          <div class="card">
+            <h3 class="center">الداشبورد — إحصائيات مفصلة</h3>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap">
+              <div style="flex: 1; min-width: 300px">
+                <h4 class="center">الفرق الكسبانة</h4>
+                <table id="winnersTable">
+                  <thead>
+                    <tr>
+                      <th>الفريق</th>
+                      <th>فوز</th>
+                      <th>نقاط</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div style="flex: 1; min-width: 300px">
+                <h4 class="center">الفرق الخسرانة</h4>
+                <table id="losersTable">
+                  <thead>
+                    <tr>
+                      <th>الفريق</th>
+                      <th>خسارة</th>
+                      <th>نقاط</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <hr
+              style="margin: 12px 0; border-color: rgba(255, 255, 255, 0.04)"
+            />
+            <h4>تفصيل المجموعات</h4>
+            <div
+              id="groupsTables"
+              style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
