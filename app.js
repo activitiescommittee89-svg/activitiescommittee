@@ -582,21 +582,27 @@ async function editMatchTeams(matchId) {
   const m = STATE.groupMatches.find((x) => x.id === matchId);
   if (!m) return alert("مباراة غير موجودة");
 
-  const h = prompt("اسم الفريق الأول:", m.home || "");
-  const a = prompt("اسم الفريق الثاني:", m.away || "");
-  if (h === null || a === null) return;
+  const hg = prompt(`أهداف ${m.home}:`, m.hg || 0);
+  if (hg === null) return;
+  const ag = prompt(`أهداف ${m.away}:`, m.ag || 0);
+  if (ag === null) return;
 
-  m.home = h.trim() || m.home;
-  m.away = a.trim() || m.away;
+  m.hg = parseInt(hg) || 0;
+  m.ag = parseInt(ag) || 0;
+  m.finished = true;
 
   try {
     const matchDocRef = doc(matchesRef, `match_${matchId}`);
-    await updateDoc(matchDocRef, { home: m.home, away: m.away });
+    await updateDoc(matchDocRef, { hg: m.hg, ag: m.ag, finished: true });
   } catch (e) {
-    console.error("Error editing match teams:", e);
+    console.error("Error editing match result:", e);
   }
 
+  recomputeTeamsFromMatches();
+  await updateTeamStatsFromMatches();
+
   showGroupDetails(m.group);
+  renderDashboard();
 }
 
 // ==================== Stats recomputation (same logic) ====================
@@ -1025,6 +1031,35 @@ async function advanceKnockout(slotId, winner) {
 // ==================== Dashboard rendering ====================
 function renderDashboard() {
   recomputeTeamsFromMatches();
+    let champion = null;
+  let runnerup = null;
+
+  if (STATE.knockout && STATE.knockout.rounds && STATE.knockout.rounds.length > 0) {
+    const finalRound = STATE.knockout.rounds[STATE.knockout.rounds.length - 1];
+    if (finalRound && finalRound.length > 0) {
+      const finalMatch = finalRound[0];
+      if (finalMatch && finalMatch.finished && finalMatch.home && finalMatch.away) {
+        if (finalMatch.hg > finalMatch.ag) {
+          champion = finalMatch.home;
+          runnerup = finalMatch.away;
+        } else if (finalMatch.ag > finalMatch.hg) {
+          champion = finalMatch.away;
+          runnerup = finalMatch.home;
+        }
+      }
+    }
+  }
+
+  // Update Champion and Runner-up display
+  const championEl = document.getElementById('championName');
+  const runnerupEl = document.getElementById('runnerupName');
+  
+  if (championEl) {
+    championEl.textContent = champion || '—';
+  }
+  if (runnerupEl) {
+    runnerupEl.textContent = runnerup || '—';
+  }
 
   const winnersBody = document.querySelector("#winnersTable tbody");
   if (winnersBody) winnersBody.innerHTML = "";
@@ -1424,5 +1459,6 @@ if (logoutBtn) {
     CURRENT_ROLE = null;
   });
 }
+
 
 
